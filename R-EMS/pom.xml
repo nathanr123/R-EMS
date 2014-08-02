@@ -214,6 +214,7 @@
 	<!-- Clean, Build, Install, Deploy REMS -->
 
 	<build>
+		<finalName>${project.name}</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
