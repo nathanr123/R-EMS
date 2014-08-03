@@ -5,8 +5,12 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -35,7 +39,7 @@ public class HomeController {
 
 		model.addAttribute("username", name);
 
-		return "hello";
+		return "user";
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
@@ -48,12 +52,13 @@ public class HomeController {
 	}
 
 	@RequestMapping(value = "/loginfailed", method = RequestMethod.GET)
-	public String loginerror(ModelMap model) {
+	public String loginerror(ModelMap model, HttpServletRequest request) {
 
 		System.out
 				.println("*************Loginfailed Controller Called**************");
 
-		model.addAttribute("error", "true");
+		model.addAttribute("error",
+				getErrorMessage(request, "SPRING_SECURITY_LAST_EXCEPTION"));
 
 		return "login";
 	}
@@ -85,6 +90,24 @@ public class HomeController {
 		model.addAttribute("serverTime", formattedDate);
 
 		return "home";
+	}
+
+	// customize the error message
+	private String getErrorMessage(HttpServletRequest request, String key) {
+
+		Exception exception = (Exception) request.getSession()
+				.getAttribute(key);
+
+		String error = "";
+		if (exception instanceof BadCredentialsException) {
+			error = "Invalid username and password!";
+		} else if (exception instanceof LockedException) {
+			error = exception.getMessage();
+		} else {
+			error = "Invalid username and password!";
+		}
+
+		return error;
 	}
 
 }
